@@ -55,16 +55,35 @@ function handleForms(form) {
 
 				if (!this.validateRequiredFields()) return;
 				if (!this.validateFields()) return;
-
-				this.submit()
+				
+				
+                grecaptcha.execute('6LdIHXUqAAAAAHlrwVUmavmu0rYtbne6exP6vhzU', { action: 'submit' }).then((token) => {
+                    this.captchaBeforeSubmit(token);
+                });
+                
+                /*
+                // If no recaptcha remove the above and uncomment the submit below
+                this.submit();
+                */
 			})
 		},
+		 captchaBeforeSubmit: function onSubmit(token) {
+            // Attach the token to the form data to handle in sendEmail
+            const tokenField = document.createElement('input');
+            tokenField.type = 'hidden';
+            tokenField.name = 'g-recaptcha-response';
+            tokenField.value = token;
+            this.form.appendChild(tokenField);
+
+            this.submit();
+        },
 		validateRequiredFields: function validateRequiredFields() {
 			const required = form.querySelectorAll('[required]')
 			let allFieldsFilled = true;
-
+			
 			required.forEach((item) => {
-				if (item.value === '' || item.value === null || item.value === undefined) {
+			    
+				if (item.value === '' || item.value === null || item.value === undefined || (item.type == 'checkbox' && item.checked === false)) {
 					this.handleErrors(item, 'required')
 					allFieldsFilled = false;
 				}
@@ -73,7 +92,7 @@ function handleForms(form) {
 			return allFieldsFilled;
 		},
 		validateFields: function validateFields() {
-			const allFields = form.elements
+			const allFields = form.elements	
 			let allFieldsValidated = true;
 
 			for (const item of allFields) {
@@ -123,7 +142,7 @@ function handleForms(form) {
 		},
 		submit: async function submit() {
 			const formData = new FormData(form)
-
+			
 			try {
 				const response = await fetch(this.submitUrl, {
 					method: 'POST',
@@ -151,7 +170,6 @@ allForms.forEach((formElement) => {
 	const form = handleForms(formElement)
 	form.init()
 })
-
 	</script>
 </body>
 </html>
