@@ -83,7 +83,8 @@ function handleForms(form) {
 			
 			required.forEach((item) => {
 			    
-				if (item.value === '' || item.value === null || item.value === undefined || (item.type == 'checkbox' && item.checked === false)) {
+				if ((item.type === 'checkbox' && !item.checked) ||
+				    item.value === '' || item.value === null || item.value === undefined) {
 					this.handleErrors(item, 'required')
 					allFieldsFilled = false;
 				}
